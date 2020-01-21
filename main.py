@@ -3,7 +3,7 @@ import os
 
 rootDic = os.path.join(os.getcwd(),"enron_mail_20150507")
 
-# Calls folderFunc for all files in a folder 
+# Calls folderFunc for files in a folder 
 # whose name contains the substring "keyword"
 def folderWalk(keyword,folderFunc):
     # Loop through the employees
