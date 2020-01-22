@@ -39,6 +39,26 @@ def folderWalk(keyword,csvwriter):
         for folder in os.listdir(emplFileP):
             if (folder.find(keyword) != -1):
                 extractContact(os.path.join(emplFileP,folder),csvwriter)
+                
+def dailyAverage(empl,inboxLoc,entrywriter):
+    emailCumu = np.zeros(7)
+    dayCumu = np.zeros(7)
+    for file in os.listdir(inboxLoc):
+        if (os.path.isfile(os.path.join(inboxLoc,file)) != True):
+            continue
+        # Read the email
+        f = open(os.path.join(inboxLoc,file),'r')
+        # Parse the email
+        content = email.parser.Parser().parsestr(f.read())
+        date = dateutil.parser.parse(content['Date'],"%d, %b %Y %X %z %Z")
+        
+# Call dailyAverage for all files in inbox folder
+# Passes write location along with csvwriter        
+def inboxWalk(csvwriter):
+    for empl in os.listdir(rootDic):
+        emplFileP = os.path.join(rootDic,empl)
+        if 'inbox' in os.listdir(emplFileP):
+            dailyAverage(empl,os.path.join(emplFileP,'inbox'),csvwriter)
         
 # Task 1
 
