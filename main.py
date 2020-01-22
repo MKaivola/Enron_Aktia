@@ -15,7 +15,9 @@ def folderWalk(keyword,folderFunc,csvwriter):
             if (folder.find(keyword) != -1):
                 folderFunc(os.path.join(emplFileP,folder),csvwriter)
                 
-def extractContact(folder,entryvwriter):
+# Parses the emails in folder and writes the number of messages between
+# two email addresses to a csv-file as determined by entrywriter
+def extractContact(folder,entrywriter):
     # Dictionary to include all (sender,recipient) : count
     countDict = dict()
     for file in os.listdir(folder):
@@ -45,3 +47,4 @@ totalFile = open('emails_sent_totals.csv','w')
 entryWriter = csv.DictWriter(totalFile,fieldnames=['Sender','Receiver','Count'])
 entryWriter.writeheader()
 folderWalk('sent',extractContact,entryWriter)
+totalFile.close()
