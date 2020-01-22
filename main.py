@@ -3,17 +3,6 @@ import email
 import csv
 
 rootDic = os.path.join(os.getcwd(),'enron_mail_20150507','maildir')
-
-# Calls folderFunc for files in a folder 
-# whose name contains the substring "keyword"
-# Passes the write location along with the csvwriter
-def folderWalk(keyword,folderFunc,csvwriter):
-    # Loop through the employees
-    for empl in os.listdir(rootDic):
-        emplFileP = os.path.join(rootDic,empl)
-        for folder in os.listdir(emplFileP):
-            if (folder.find(keyword) != -1):
-                folderFunc(os.path.join(emplFileP,folder),csvwriter)
                 
 # Parses the emails in folder and writes the number of messages between
 # two email addresses to a csv-file as determined by entrywriter
@@ -39,6 +28,17 @@ def extractContact(folder,entrywriter):
     # Write the dictionary to the csv-file
     for key,value in countDict.items():
         entryWriter.writerow({'Sender': key[0],'Receiver': key[1],'Count': value})
+ 
+# Calls extractContact for files in a folder 
+# whose name contains the substring "keyword"
+# Passes the write location along with the csvwriter
+def folderWalk(keyword,csvwriter):
+    # Loop through the employees
+    for empl in os.listdir(rootDic):
+        emplFileP = os.path.join(rootDic,empl)
+        for folder in os.listdir(emplFileP):
+            if (folder.find(keyword) != -1):
+                extractContact(os.path.join(emplFileP,folder),csvwriter)
         
 # Task 1
 
@@ -46,5 +46,5 @@ totalFile = open('emails_sent_totals.csv','w')
 # Create a csv-writer for the file
 entryWriter = csv.DictWriter(totalFile,fieldnames=['Sender','Receiver','Count'])
 entryWriter.writeheader()
-folderWalk('sent',extractContact,entryWriter)
+folderWalk('sent',entryWriter)
 totalFile.close()
