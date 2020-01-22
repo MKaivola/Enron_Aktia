@@ -46,5 +46,5 @@ totalFile = open('emails_sent_totals.csv','w')
 # Create a csv-writer for the file
 entryWriter = csv.DictWriter(totalFile,fieldnames=['Sender','Receiver','Count'])
 entryWriter.writeheader()
-folderWalk('sent',extractContact,entryWriter)
+folderWalk('sent',entryWriter)
 totalFile.close()
