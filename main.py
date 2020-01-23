@@ -42,16 +42,16 @@ def extractContact(folder,entryWriter):
         entryWriter.writerow({'sender': key[0],'recipient': key[1],'count': value})
  
 # Calls extractContact for files in directories 
-# whose name contains the substring "keyword"
+# whose names contain the substring "keyword"
 # Passes the write location along with the csvwriter
-def folderWalk(keyword,csvwriter):
+def folderWalk(keyword,csvWriter):
     # Loop through the employees
     for empl in os.listdir(rootDic):
         emplFileP = os.path.join(rootDic,empl)
         # Consider each directory separately
         for folder in os.listdir(emplFileP):
             if (folder.find(keyword) != -1):
-                extractContact(os.path.join(emplFileP,folder),csvwriter)
+                extractContact(os.path.join(emplFileP,folder),csvWriter)
                 
 # Calculates average number of emails per weekday for employee empl
 # and writes it to a csv-file via entryWriter
@@ -90,15 +90,17 @@ def dailyAverage(empl,inboxLoc,entryWriter):
         entryWriter.writerow({'employee': empl,'day_of_week': day, 'avg_count': averageWeekday[day]})
 
         
-# Calls dailyAverage for all files in inbox directories
-# and their subdirectories
+# Calls dailyAverage for files in directories
+# whose names contain the substring keyword
 # Passes write location along with csvwriter        
-def inboxWalk(csvwriter):
+def inboxWalk(keyword,csvWriter):
     # Loop through the employees
     for empl in os.listdir(rootDic):
         emplFileP = os.path.join(rootDic,empl)
-        if 'inbox' in os.listdir(emplFileP):
-            dailyAverage(empl,os.path.join(emplFileP,'inbox'),csvwriter)
+        for folder in os.listdir(emplFileP):
+            # Consider each folder separately
+            if (folder.find(keyword) != -1):
+                dailyAverage(empl,os.path.join(emplFileP,folder),csvWriter)
         
 # Task 1        
 with open('emails_sent_totals.csv','w') as totalFile:
