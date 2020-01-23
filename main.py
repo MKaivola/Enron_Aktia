@@ -7,30 +7,37 @@ import numpy as np
 rootDic = os.path.join(os.getcwd(),'enron_mail_20150507','maildir')
                 
 # Parses the emails in folder and writes the number of messages between
-# two email addresses to a csv-file as determined by entrywriter
-def extractContact(folder,entrywriter):
+# two email addresses to a csv-file as determined by entrywriter              
+def extractContact(folder,entryWriter):
     # Dictionary to include all (sender,recipient) : count
     countDict = dict()
-    for file in os.listdir(folder):
-        # Read the email
-        f = open(os.path.join(folder,file),'r', errors = 'replace')
-        # Parse the email
-        content = parser.Parser().parsestr(f.read())
-        f.close()
-        sender = content['From']
-        # Go through all the recipient headers
-        for header in ['To','cc','bcc']:
-            # Check whether the header is empty
-            if (content[header] != None):
-                # Extract the individual recipients
-                receivers = [name.strip() for name in content[header].split(', ')]
-                # Add the message to the dictionary
-                for receiver in receivers:
-                    key = (sender,receiver)
-                    countDict[key] = countDict.get(key,0) + 1
+    def inner(subDic):
+        for file in os.listdir(subDic):
+            currentPath = os.path.join(subDic,file)
+            # Recurse when encountering a directory
+            if os.path.isdir(currentPath) :
+                inner(currentPath)
+            else :
+                # Read the email
+                f = open(currentPath,'r',errors = 'replace')
+                # Parse the email
+                content = parser.Parser().parsestr(f.read())
+                f.close()
+                sender = content['From']
+                # Go through all the recipient headers
+                for header in ['To','cc','bcc']:
+                    # Check whether the header is empty
+                    if (content[header] != None):
+                        # Extract the individual recipients
+                        receivers = [name.strip() for name in content[header].split(', ')]
+                        # Add the message to the dictionary
+                        for receiver in receivers:
+                            key = (sender,receiver)
+                            countDict[key] = countDict.get(key,0) + 1
+    inner(folder)
     # Write the dictionary to the csv-file
     for key,value in countDict.items():
-        entryWriter.writerow({'Sender': key[0],'Receiver': key[1],'Count': value})
+        entryWriter.writerow({'sender': key[0],'receiver': key[1],'count': value})
  
 # Calls extractContact for files in a folder 
 # whose name contains the substring "keyword"
@@ -39,6 +46,7 @@ def folderWalk(keyword,csvwriter):
     # Loop through the employees
     for empl in os.listdir(rootDic):
         emplFileP = os.path.join(rootDic,empl)
+        # Consider each folder separately
         for folder in os.listdir(emplFileP):
             if (folder.find(keyword) != -1):
                 extractContact(os.path.join(emplFileP,folder),csvwriter)
@@ -53,27 +61,33 @@ def dailyAverage(empl,inboxLoc,entryWriter):
     dayCumu = np.zeros(7)
     # What dates have already been observed
     observedDays = set()
-    for file in os.listdir(inboxLoc):
-        # Consider only files in this directory
-        if (os.path.isfile(os.path.join(inboxLoc,file)) != True):
-            continue
-        # Read the email
-        f = open(os.path.join(inboxLoc,file),'r',errors = 'replace')
-        # Parse the email
-        content = parser.Parser().parsestr(f.read())
-        f.close()
-        # Remove the time zone name from the date and parse the string
-        dateEmail = datetime.strptime((content['Date'].split("(")[0]),"%a, %d %b %Y %X %z ")
-        # Add email to cumulative 
-        emailCumu[dateEmail.weekday()] += 1
-        # If a new date is observed, add new observed weekday
-        if dateEmail.date() not in observedDays:
-            observedDays.add(dateEmail.date())
-            dayCumu[dateEmail.weekday()] += 1
+    def inner(subDic):
+        for file in os.listdir(subDic):
+            currentPath = os.path.join(subDic,file)
+            # Recurse when encountering a directory
+            if os.path.isdir(currentPath):
+                inner(currentPath)
+            else:
+                # Read the email
+                f = open(currentPath,'r',errors = 'replace')
+                # Parse the email
+                content = parser.Parser().parsestr(f.read())
+                f.close()
+                # Remove the time zone name from the date and parse the string
+                dateEmail = datetime.strptime((content['Date'].split("(")[0]),"%a, %d %b %Y %X %z ")
+                # Add email to cumulative 
+                emailCumu[dateEmail.weekday()] += 1
+                # If a new date is observed, add new observed weekday
+                if dateEmail.date() not in observedDays:
+                    observedDays.add(dateEmail.date())
+                    dayCumu[dateEmail.weekday()] += 1
+    # Return zero if there are no emails for a given weekday
+    inner(inboxLoc)
     # Return zero if there are no emails for a given weekday
     averageWeekday = np.divide(emailCumu,dayCumu,out = np.zeros_like(emailCumu),where = dayCumu != 0)
     for day in range(7):
         entryWriter.writerow({'employee': empl,'day_of_week': day, 'avg_count': averageWeekday[day]})
+
         
 # Call dailyAverage for all files in inbox folder
 # Passes write location along with csvwriter        
