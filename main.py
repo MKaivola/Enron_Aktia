@@ -80,11 +80,15 @@ def inboxWalk(csvwriter):
         if 'inbox' in os.listdir(emplFileP):
             dailyAverage(empl,os.path.join(emplFileP,'inbox'),csvwriter)
         
-# Task 1
+# Task 1        
+with open('emails_sent_totals.csv','w') as totalFile:
+    # Create a csv-writer for the file
+    entryWriter = csv.DictWriter(totalFile,fieldnames=['sender','receiver','count'])
+    entryWriter.writeheader()
+    folderWalk('sent',entryWriter)
 
-totalFile = open('emails_sent_totals.csv','w')
-# Create a csv-writer for the file
-entryWriter = csv.DictWriter(totalFile,fieldnames=['Sender','Receiver','Count'])
-entryWriter.writeheader()
-folderWalk('sent',entryWriter)
-totalFile.close()
+# Task 2
+with open('emails_sent_average_per_weekday.csv','w') as averageFile:
+    entryWriter = csv.DictWriter(averageFile,fieldnames=['employee','day_of_week','avg_count'])
+    entryWriter.writeheader()
+    inboxWalk(entryWriter)
