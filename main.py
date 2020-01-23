@@ -12,7 +12,7 @@ def extractContact(folder,entrywriter):
     countDict = dict()
     for file in os.listdir(folder):
         # Read the email
-        f = open(os.path.join(folder,file),'r')
+        f = open(os.path.join(folder,file),'r', errors = 'replace')
         # Parse the email
         content = email.parser.Parser().parsestr(f.read())
         f.close()
@@ -57,7 +57,7 @@ def dailyAverage(empl,inboxLoc,entryWriter):
         if (os.path.isfile(os.path.join(inboxLoc,file)) != True):
             continue
         # Read the email
-        f = open(os.path.join(inboxLoc,file),'r')
+        f = open(os.path.join(inboxLoc,file),'r',errors = 'replace')
         # Parse the email
         content = email.parser.Parser().parsestr(f.read())
         f.close()
