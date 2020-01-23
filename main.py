@@ -1,6 +1,7 @@
 import os
 import email
 import csv
+from datetime import datetime
 
 rootDic = os.path.join(os.getcwd(),'enron_mail_20150507','maildir')
                 
