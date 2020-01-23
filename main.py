@@ -15,6 +15,7 @@ def extractContact(folder,entrywriter):
         f = open(os.path.join(folder,file),'r')
         # Parse the email
         content = email.parser.Parser().parsestr(f.read())
+        f.close()
         sender = content['From']
         # Go through all the recipient headers
         for header in ['To','cc','bcc']:
@@ -59,6 +60,7 @@ def dailyAverage(empl,inboxLoc,entryWriter):
         f = open(os.path.join(inboxLoc,file),'r')
         # Parse the email
         content = email.parser.Parser().parsestr(f.read())
+        f.close()
         # Remove the time zone name from the date and parse the string
         dateEmail = datetime.strptime((content['Date'].split("(")[0]),"%a, %d %b %Y %X %z ")
         # Add email to cumulative 
