@@ -1,7 +1,8 @@
 import os
-import email
+from email import parser
 import csv
 from datetime import datetime
+import numpy as np
 
 rootDic = os.path.join(os.getcwd(),'enron_mail_20150507','maildir')
                 
@@ -14,7 +15,7 @@ def extractContact(folder,entrywriter):
         # Read the email
         f = open(os.path.join(folder,file),'r', errors = 'replace')
         # Parse the email
-        content = email.parser.Parser().parsestr(f.read())
+        content = parser.Parser().parsestr(f.read())
         f.close()
         sender = content['From']
         # Go through all the recipient headers
@@ -59,7 +60,7 @@ def dailyAverage(empl,inboxLoc,entryWriter):
         # Read the email
         f = open(os.path.join(inboxLoc,file),'r',errors = 'replace')
         # Parse the email
-        content = email.parser.Parser().parsestr(f.read())
+        content = parser.Parser().parsestr(f.read())
         f.close()
         # Remove the time zone name from the date and parse the string
         dateEmail = datetime.strptime((content['Date'].split("(")[0]),"%a, %d %b %Y %X %z ")
