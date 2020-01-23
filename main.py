@@ -113,4 +113,4 @@ with open('emails_sent_totals.csv','w') as totalFile:
 with open('emails_sent_average_per_weekday.csv','w') as averageFile:
     entryWriter = csv.DictWriter(averageFile,fieldnames=['employee','day_of_week','avg_count'])
     entryWriter.writeheader()
-    inboxWalk(entryWriter)
+    inboxWalk('inbox',entryWriter)
