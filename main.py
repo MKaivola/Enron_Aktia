@@ -8,8 +8,8 @@ import numpy as np
 rootDic = os.path.join(os.getcwd(),'enron_mail_20150507','maildir')
                 
 # Parses the emails contained in subdirectories of empl that contain
-# the string 'sent' and writes the number of messages between
-# two email addresses to a csv-file as determined by entrywriter            
+# the string 'sent' in their name and writes the number of messages between
+# two email addresses to a csv-file as determined by entryWriter            
 def extractContact(empl,entryWriter):
     # Dictionary to include all (sender,recipient) : count elements
     countDict = dict()
@@ -21,6 +21,7 @@ def extractContact(empl,entryWriter):
                 inner(currentPath)
             else :
                 # Read the email
+                # If Unicode errors are encountered, replace the byte
                 f = open(currentPath,'r',errors = 'replace')
                 # Parse the email
                 content = parser.Parser().parsestr(f.read())
@@ -46,11 +47,12 @@ def extractContact(empl,entryWriter):
     for key,value in countDict.items():
         entryWriter.writerow({'sender': key[0],'recipient': key[1],'count': value})
                  
-# Calculates average number of emails per weekday for employee emplName
+# Calculates the average number of emails received 
+# per weekday for employee emplName
 # and writes it to a csv-file via entryWriter
 # empl passes the employee filepath
 def dailyAverage(emplName,empl,entryWriter):
-    # How many emails received in a given week day
+    # How many emails received on a given week day
     emailCumu = np.zeros(7)
     # How many given weekdays are observed
     dayCumu = np.zeros(7)
@@ -64,11 +66,12 @@ def dailyAverage(emplName,empl,entryWriter):
                 inner(currentPath)
             else:
                 # Read the email
+                # If Unicode errors are encountered, replace the byte
                 f = open(currentPath,'r',errors = 'replace')
                 # Parse the email
                 content = parser.Parser().parsestr(f.read())
                 f.close()
-                # Remove the time zone name from the date and parse the string
+                # Remove the time zone name from the timestamp and parse the string
                 dateEmail = datetime.strptime((content['Date'].split("(")[0]),"%a, %d %b %Y %X %z ")
                 # Add email to cumulative 
                 emailCumu[dateEmail.weekday()] += 1
@@ -78,16 +81,16 @@ def dailyAverage(emplName,empl,entryWriter):
                     dayCumu[dateEmail.weekday()] += 1
     for folder in os.listdir(empl):
         currentLoc = os.path.join(empl,folder)
-        # Consider only directories that contain the word 'inbox'
+        # Consider only subdirectories that contain the word 'inbox'
         # in their name
         if os.path.isdir(currentLoc) and 'inbox' in folder:
             inner(currentLoc)
     # Return zero if there are no emails for a given weekday
     averageWeekday = np.divide(emailCumu,dayCumu,out = np.zeros_like(emailCumu),where = dayCumu != 0)
+    # Write the averages to the csv-file
     for day in range(7):
         entryWriter.writerow({'employee': emplName,'day_of_week': day, 'avg_count': averageWeekday[day]})
 
-                
 # Task 1        
 with open('emails_sent_totals.csv','w') as totalFile:
     # Create a csv-writer for the file
