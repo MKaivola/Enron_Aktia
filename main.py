@@ -85,7 +85,7 @@ def dailyAverage(emplName,empl,entryWriter):
     # Return zero if there are no emails for a given weekday
     averageWeekday = np.divide(emailCumu,dayCumu,out = np.zeros_like(emailCumu),where = dayCumu != 0)
     for day in range(7):
-        entryWriter.writerow({'employee': empl,'day_of_week': day, 'avg_count': averageWeekday[day]})
+        entryWriter.writerow({'employee': emplName,'day_of_week': day, 'avg_count': averageWeekday[day]})
 
                 
 # Task 1        
