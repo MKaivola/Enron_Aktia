@@ -6,3 +6,6 @@ We assume that the email dataset has been downloaded and extracted to the projec
 
 1. Install dependencies from the Pipfile.lock in the repository via pipenv using the command 'pipenv install --ignore-pipfile'
 2. Run the python script main.py in the created virtual environment using the command 'pipenv run python main.py'
+
+# A note on email parsing
+In some of the emails, the email parser encountered Unicode errors. For the moment, these bytes are replaced.
