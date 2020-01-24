@@ -9,3 +9,6 @@ We assume that the email dataset has been downloaded and extracted to the projec
 
 # A note on email parsing
 In some of the emails, the email parser encountered Unicode errors. For the moment, these bytes are replaced.
+
+# Assumptions on emails
+We calculate repeating recipients in the recipient headers as unique emails. Thus it can be that some emails are counted twice.
