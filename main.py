@@ -7,10 +7,10 @@ import numpy as np
 # Location of the employee directories
 rootDic = os.path.join(os.getcwd(),'enron_mail_20150507','maildir')
                 
-# Parses the emails in folder and its subdirectories 
-# and writes the number of messages between
-# two email addresses to a csv-file as determined by entryWriter              
-def extractContact(folder,entryWriter):
+# Parses the emails contained in subdirectories of empl that contain
+# the string 'sent' and writes the number of messages between
+# two email addresses to a csv-file as determined by entrywriter            
+def extractContact(empl,entryWriter):
     # Dictionary to include all (sender,recipient) : count elements
     countDict = dict()
     def inner(subDic):
@@ -36,23 +36,17 @@ def extractContact(folder,entryWriter):
                         for receiver in receivers:
                             key = (sender,receiver)
                             countDict[key] = countDict.get(key,0) + 1
+    for folder in os.listdir(empl):
+        currentLoc = os.path.join(empl,folder)
+        # Consider only subdirectories that contain the string "sent
+        # in their name
+        if os.path.isdir(currentLoc) and 'sent' in folder:
+            inner(currentLoc)
     inner(folder)
     # Write the dictionary to the csv-file
     for key,value in countDict.items():
         entryWriter.writerow({'sender': key[0],'recipient': key[1],'count': value})
- 
-# Calls extractContact for files in directories 
-# whose names contain the substring "keyword"
-# Passes the write location along with the csvwriter
-def folderWalk(keyword,csvWriter):
-    # Loop through the employees
-    for empl in os.listdir(rootDic):
-        emplFileP = os.path.join(rootDic,empl)
-        # Consider each directory separately
-        for folder in os.listdir(emplFileP):
-            if (folder.find(keyword) != -1):
-                extractContact(os.path.join(emplFileP,folder),csvWriter)
-                
+                 
 # Calculates average number of emails per weekday for employee empl
 # and writes it to a csv-file via entryWriter
 # inboxLoc passes the inbox filepath
@@ -107,7 +101,10 @@ with open('emails_sent_totals.csv','w') as totalFile:
     # Create a csv-writer for the file
     entryWriter = csv.DictWriter(totalFile,fieldnames=['sender','recipient','count'])
     entryWriter.writeheader()
-    folderWalk('sent',entryWriter)
+    # Consider all employees
+    for empl in os.listdir(rootDic):
+        emplFileP = os.path.join(rootDic,empl)
+        extractContact(emplFileP,entryWriter)
 
 # Task 2
 with open('emails_sent_average_per_weekday.csv','w') as averageFile:
