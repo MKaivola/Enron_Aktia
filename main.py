@@ -42,7 +42,6 @@ def extractContact(empl,entryWriter):
         # in their name
         if os.path.isdir(currentLoc) and 'sent' in folder:
             inner(currentLoc)
-    inner(folder)
     # Write the dictionary to the csv-file
     for key,value in countDict.items():
         entryWriter.writerow({'sender': key[0],'recipient': key[1],'count': value})
