@@ -38,7 +38,7 @@ def extractContact(empl,entryWriter):
                             countDict[key] = countDict.get(key,0) + 1
     for folder in os.listdir(empl):
         currentLoc = os.path.join(empl,folder)
-        # Consider only subdirectories that contain the string "sent
+        # Consider only subdirectories that contain the string 'sent'
         # in their name
         if os.path.isdir(currentLoc) and 'sent' in folder:
             inner(currentLoc)
@@ -46,10 +46,10 @@ def extractContact(empl,entryWriter):
     for key,value in countDict.items():
         entryWriter.writerow({'sender': key[0],'recipient': key[1],'count': value})
                  
-# Calculates average number of emails per weekday for employee empl
+# Calculates average number of emails per weekday for employee emplName
 # and writes it to a csv-file via entryWriter
-# inboxLoc passes the inbox filepath
-def dailyAverage(empl,inboxLoc,entryWriter):
+# empl passes the employee filepath
+def dailyAverage(emplName,empl,entryWriter):
     # How many emails received in a given week day
     emailCumu = np.zeros(7)
     # How many given weekdays are observed
@@ -76,37 +76,33 @@ def dailyAverage(empl,inboxLoc,entryWriter):
                 if dateEmail.date() not in observedDates:
                     observedDates.add(dateEmail.date())
                     dayCumu[dateEmail.weekday()] += 1
-    inner(inboxLoc)
+    for folder in os.listdir(empl):
+        currentLoc = os.path.join(empl,folder)
+        # Consider only directories that contain the word 'inbox'
+        # in their name
+        if os.path.isdir(currentLoc) and 'inbox' in folder:
+            inner(currentLoc)
     # Return zero if there are no emails for a given weekday
     averageWeekday = np.divide(emailCumu,dayCumu,out = np.zeros_like(emailCumu),where = dayCumu != 0)
     for day in range(7):
         entryWriter.writerow({'employee': empl,'day_of_week': day, 'avg_count': averageWeekday[day]})
 
-        
-# Calls dailyAverage for files in directories
-# whose names contain the substring keyword
-# Passes write location along with csvwriter        
-def inboxWalk(keyword,csvWriter):
-    # Loop through the employees
-    for empl in os.listdir(rootDic):
-        emplFileP = os.path.join(rootDic,empl)
-        for folder in os.listdir(emplFileP):
-            # Consider each folder separately
-            if (folder.find(keyword) != -1):
-                dailyAverage(empl,os.path.join(emplFileP,folder),csvWriter)
-        
+                
 # Task 1        
 with open('emails_sent_totals.csv','w') as totalFile:
     # Create a csv-writer for the file
     entryWriter = csv.DictWriter(totalFile,fieldnames=['sender','recipient','count'])
     entryWriter.writeheader()
     # Consider all employees
-    for empl in os.listdir(rootDic):
-        emplFileP = os.path.join(rootDic,empl)
+    for emplName in os.listdir(rootDic):
+        emplFileP = os.path.join(rootDic,emplName)
         extractContact(emplFileP,entryWriter)
 
 # Task 2
 with open('emails_sent_average_per_weekday.csv','w') as averageFile:
     entryWriter = csv.DictWriter(averageFile,fieldnames=['employee','day_of_week','avg_count'])
     entryWriter.writeheader()
-    inboxWalk('inbox',entryWriter)
+    # Consider all employees
+    for emplName in os.listdir(rootDic):
+        emplFileP = os.path.join(rootDic,emplName)
+        dailyAverage(emplName,emplFileP,entryWriter)
